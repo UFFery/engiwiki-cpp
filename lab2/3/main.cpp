@@ -1,6 +1,29 @@
 #include <stdio.h>
 
-int main() {
-  //Ваш код
-  return 0;
+int main () {
+    int a;
+    int jopamin = 0;
+    int jopamax = 0;
+
+    scanf("%d", &a);
+
+    if(jopamin == 0) {
+            jopamin = a;
+        }
+
+    while (a != 0){
+
+        if (a > jopamax) {
+            jopamax = a;
+        }
+
+        if (a < jopamin) {
+            jopamin = a;
+        }
+
+        scanf("%d", &a);
+    }
+
+    printf("%d %d", jopamax, jopamin );
+
 }
