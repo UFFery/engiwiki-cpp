@@ -11,6 +11,10 @@ int main () {
             jopamin = a;
         }
 
+    if(jopamax == 0) {
+        jopamax = a;
+    }
+
     while (a != 0){
 
         if (a > jopamax) {
