@@ -8,6 +8,10 @@ int main () {
 
     scanf("%d", &a);
 
+    if (a == 0) {
+        summa = 1;
+    }
+
     while ( abs(a) > 0 ) {
 
         a = a / 10;
