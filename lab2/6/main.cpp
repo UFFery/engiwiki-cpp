@@ -1,5 +1,5 @@
-
 #include <stdio.h>
+#include <math.h>
 
 int main () {
     int a, summa;
@@ -8,7 +8,7 @@ int main () {
 
     scanf("%d", &a);
 
-    while ( a>0 ) {
+    while ( abs(a) > 0 ) {
 
         a = a / 10;
         summa = summa + 1;
