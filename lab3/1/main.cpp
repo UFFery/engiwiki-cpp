@@ -15,13 +15,22 @@ int to2(long long a) {
     }
 
     int sign = (a < 0) ? 1 : 0;
-    long long val = (a < 0) ? -a : a;
+    long long abs_val = (a < 0) ? -a : a;
 
-    int total_len = (a >= -128 && a <= 127) ? 8 : 17;
-    int bits_count = total_len - 1;
+    int bits_count = 1;
+    if (sign == 0) {
+        while (stepen(bits_count) <= abs_val) {
+            bits_count++;
+        }
+    } else {
+        while (abs_val > stepen(bits_count - 1)) {
+            bits_count++;
+        }
+    }
 
+    long long val = abs_val;
     if (sign == 1) {
-        val = stepen(bits_count) - val;
+        val = stepen(bits_count) - abs_val;
     }
 
     printf("%d", sign);
@@ -40,15 +49,15 @@ int to10(long long a) {
         return 0;
     }
 
-    int digits[100];
+    if (a == 0) {
+        printf("0\n");
+        return 0;
+    }
+
+    int digits[40];
     int len = 0;
     long long temp = a;
 
-    if (temp == 0) {
-        digits[0] = 0;
-        len = 1;
-    }
-    
     while (temp > 0) {
         int d = temp % 10;
         if (d != 0 && d != 1) {
@@ -60,49 +69,65 @@ int to10(long long a) {
         temp /= 10;
     }
 
-    int sign = 0;
-    int total_len = 0;
-
-    if (len == 8) {
-        sign = digits[7];
-        total_len = 8;
-    } else if (len == 17) {
-        sign = digits[16];
-        total_len = 17;
-    } else if (len < 8) {
-        sign = 0;
-        total_len = 8;
-        for (int i = len; i < 8; i++) {
-            digits[i] = 0;
-        }
-    } else if (len > 8 && len < 17) {
-        sign = 0;
-        total_len = 17;
-        for (int i = len; i < 17; i++) {
-            digits[i] = 0;
-        }
-    } else {
-        printf("ERROR\n");
-        return 0;
-    }
-
-    long long result = 0;
-    for (int i = 0; i < total_len - 1; i++) {
+    long long val_neg = 0;
+    for (int i = 0; i < len - 1; i++) {
         if (digits[i] == 1) {
-            result += stepen(i);
+            val_neg += stepen(i);
+        }
+    }
+    val_neg -= stepen(len - 1);
+
+    if (val_neg >= -65535 && val_neg <= 65535) {
+        int bits_count = 1;
+        long long abs_neg = -val_neg;
+        while (abs_neg > stepen(bits_count - 1)) {
+            bits_count++;
+        }
+        if (bits_count + 1 == len) {
+            long long v = stepen(bits_count) - abs_neg;
+            int match = 1;
+            for (int i = 0; i < bits_count; i++) {
+                if ((v % 2) != digits[i]) {
+                    match = 0;
+                }
+                v /= 2;
+            }
+            if (match) {
+                printf("%lld\n", val_neg);
+                return 0;
+            }
         }
     }
 
-    if (sign == 1) {
-        result = result - stepen(total_len - 1);
+    long long val_pos = 0;
+    for (int i = 0; i < len; i++) {
+        if (digits[i] == 1) {
+            val_pos += stepen(i);
+        }
     }
 
-    if (result < -65535 || result > 65535) {
-        printf("ERROR\n");
-        return 0;
+    if (val_pos >= -65535 && val_pos <= 65535) {
+        int bits_count = 1;
+        while (stepen(bits_count) <= val_pos) {
+            bits_count++;
+        }
+        if (bits_count == len) {
+            long long v = val_pos;
+            int match = 1;
+            for (int i = 0; i < bits_count; i++) {
+                if ((v % 2) != digits[i]) {
+                    match = 0;
+                }
+                v /= 2;
+            }
+            if (match) {
+                printf("%lld\n", val_pos);
+                return 0;
+            }
+        }
     }
 
-    printf("%lld\n", result);
+    printf("ERROR\n");
     return 0;
 }
 
@@ -116,7 +141,7 @@ int main() {
     }
 
     if (b == 10) {
-        to10(a); 
+        to10(a);
     } else if (b == 2) {
         to2(a);
     } else {
