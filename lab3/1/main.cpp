@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 
 int stepen(int b) {
     int c = 1;
@@ -8,7 +9,7 @@ int stepen(int b) {
     return c;
 }
 
-int to2(long long a) {
+int to10(long long a) {
     if (a < -65535 || a > 65535) {
         printf("ERROR\n");
         return 0;
@@ -19,11 +20,11 @@ int to2(long long a) {
 
     int bits_count = 1;
     if (sign == 0) {
-        while (stepen(bits_count) <= abs_val) {
+        while (stepen(bits_count) - 1 < abs_val) {
             bits_count++;
         }
     } else {
-        while (abs_val > stepen(bits_count - 1)) {
+        while (stepen(bits_count - 1) < abs_val) {
             bits_count++;
         }
     }
@@ -34,115 +35,116 @@ int to2(long long a) {
     }
 
     printf("%d", sign);
-
     for (int i = bits_count - 1; i >= 0; i--) {
-        int bit = (val / stepen(i)) % 2;
-        printf("%d", bit);
+        printf("%d", (int)((val / stepen(i)) % 2));
     }
     printf("\n");
     return 0;
 }
 
-int to10(long long a) {
+int to2(long long a) {
     if (a < 0) {
         printf("ERROR\n");
         return 0;
     }
 
-    if (a == 0) {
-        printf("0\n");
-        return 0;
-    }
-
-    int digits[40];
+    int digits[100];
     int len = 0;
     long long temp = a;
 
+    if (temp == 0) {
+        digits[0] = 0;
+        len = 1;
+    }
     while (temp > 0) {
         int d = temp % 10;
         if (d != 0 && d != 1) {
             printf("ERROR\n");
             return 0;
         }
-        digits[len] = d;
-        len++;
+        digits[len++] = d;
         temp /= 10;
     }
 
-    long long val_neg = 0;
+    if (len == 1 && digits[0] == 0) {
+        digits[0] = 0;
+        len = 2;
+    } else if (len == 1 && digits[0] == 1) {
+        digits[1] = 0;
+        len = 2;
+    }
+
+    int sign = digits[len - 1];
+    long long result = 0;
+
     for (int i = 0; i < len - 1; i++) {
         if (digits[i] == 1) {
-            val_neg += stepen(i);
-        }
-    }
-    val_neg -= stepen(len - 1);
-
-    if (val_neg >= -65535 && val_neg <= 65535) {
-        int bits_count = 1;
-        long long abs_neg = -val_neg;
-        while (abs_neg > stepen(bits_count - 1)) {
-            bits_count++;
-        }
-        if (bits_count + 1 == len) {
-            long long v = stepen(bits_count) - abs_neg;
-            int match = 1;
-            for (int i = 0; i < bits_count; i++) {
-                if ((v % 2) != digits[i]) {
-                    match = 0;
-                }
-                v /= 2;
-            }
-            if (match) {
-                printf("%lld\n", val_neg);
-                return 0;
-            }
+            result += stepen(i);
         }
     }
 
-    long long val_pos = 0;
-    for (int i = 0; i < len; i++) {
-        if (digits[i] == 1) {
-            val_pos += stepen(i);
-        }
+    if (sign == 1) {
+        result = result - stepen(len - 1);
     }
 
-    if (val_pos >= -65535 && val_pos <= 65535) {
-        int bits_count = 1;
-        while (stepen(bits_count) <= val_pos) {
-            bits_count++;
-        }
-        if (bits_count == len) {
-            long long v = val_pos;
-            int match = 1;
-            for (int i = 0; i < bits_count; i++) {
-                if ((v % 2) != digits[i]) {
-                    match = 0;
-                }
-                v /= 2;
-            }
-            if (match) {
-                printf("%lld\n", val_pos);
-                return 0;
-            }
-        }
-    }
-
-    printf("ERROR\n");
-    return 0;
-}
-
-int main() {
-    long long a;
-    int b;
-
-    if (scanf("%lld %d", &a, &b) != 2) {
+    if (result < -65535 || result > 65535) {
         printf("ERROR\n");
         return 0;
     }
 
-    if (b == 10) {
+    int check_bits = 1;
+    long long abs_res = (result < 0) ? -result : result;
+    if (result >= 0) {
+        while (stepen(check_bits) - 1 < abs_res) {
+            check_bits++;
+        }
+    } else {
+        while (stepen(check_bits - 1) < abs_res) {
+            check_bits++;
+        }
+    }
+
+    if (check_bits + 1 != len) {
+        printf("ERROR\n");
+        return 0;
+    }
+
+    printf("%lld\n", result);
+    return 0;
+}
+
+int main() {
+    char s1[100], s2[100];
+
+    if (scanf("%99s %99s", s1, s2) != 2) {
+        printf("ERROR\n");
+        return 0;
+    }
+
+    if (strcmp(s2, "10") == 0) {
+        long long a;
+        if (sscanf(s1, "%lld", &a) != 1) {
+            printf("ERROR\n");
+            return 0;
+        }
         to10(a);
-    } else if (b == 2) {
+    } else if (strcmp(s2, "2") == 0) {
+        if (s1[0] == '-') {
+            printf("ERROR\n");
+            return 0;
+        }
+
+        long long a;
+        if (sscanf(s1, "%lld", &a) != 1) {
+            printf("ERROR\n");
+            return 0;
+        }
+
+        if (strcmp(s1, "00") == 0) {
+            printf("0\n");
+            return 0;
+        }
+
         to2(a);
     } else {
         printf("ERROR\n");
