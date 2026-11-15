@@ -1,4 +1,4 @@
-=#include <stdio.h>
+#include <stdio.h>
 
 int stepen(int b) {
     int c = 1;
